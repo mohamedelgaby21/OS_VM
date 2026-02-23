@@ -1,7 +1,4 @@
-/*
- * Shell Assignment
- * Matches style of Task 1 - Task 6
- */
+
 
 #include <iostream>
 #include <unistd.h>
@@ -15,15 +12,15 @@
 
 using namespace std;
 
-// Needed for the 'environ' command (Task 6 style)
+// Needed for the 'environ' command 
 extern char **environ;
 
 int main(int argc, char *argv[]) {
     char input[1024];
     char cwd[PATH_MAX];
-    char *args[64]; // Fixed size array, like Task 4's args[]
+    char *args[64]; 
     
-    // Support batch file mode (Requirement 3)
+    // Support batch file mode 
     if (argc == 2) {
         int fd = open(argv[1], O_RDONLY);
         if (fd < 0) {
@@ -34,26 +31,26 @@ int main(int argc, char *argv[]) {
         close(fd);
     }
 
-    // Set initial PWD env var
+    
     if (getcwd(cwd, sizeof(cwd)) != NULL) {
         setenv("PWD", cwd, 1);
     }
 
     while (true) {
-        // 1. Prompt (Task 5 style getcwd)
+       
         if (getcwd(cwd, sizeof(cwd)) != NULL) {
              cout << cwd << " > "; 
         } else {
              cout << "? > ";
         }
 
-        // 2. Read Input
-        // If cin fails (Ctrl+D or End of File), break the loop
+        //  Read Input
+        
         if (!cin.getline(input, 1024)) {
             break; 
         }
 
-        // 3. Parse Input (Tokenize spaces)
+        //  Parse Input (Tokenize spaces)
         int i = 0;
         char *token = strtok(input, " \t\n");
         while (token != NULL && i < 63) {
@@ -61,26 +58,25 @@ int main(int argc, char *argv[]) {
             token = strtok(NULL, " \t\n");
             i++;
         }
-        args[i] = NULL; // Null terminate the list, exactly like Task 4
+        args[i] = NULL; // Null terminate the list
 
-        if (args[0] == NULL) continue; // Empty line
+        if (args[0] == NULL) continue; 
 
-        // --- Check for Redirection & Background (&) ---
-        // We scan the args array for special symbols
+        
         int background = 0;
         char *file_in = NULL;
         char *file_out = NULL;
         int append = 0;
 
-        int cmd_end = i; // Index where actual command args end
+        int cmd_end = i; 
 
         for (int j = 0; j < i; j++) {
             if (strcmp(args[j], "&") == 0) {
                 background = 1;
-                args[j] = NULL; // Remove & from args passed to exec
+                args[j] = NULL; 
             } else if (strcmp(args[j], "<") == 0) {
                 if (j + 1 < i) file_in = args[j+1];
-                args[j] = NULL; // Cut off args here
+                args[j] = NULL; 
             } else if (strcmp(args[j], ">") == 0) {
                 if (j + 1 < i) file_out = args[j+1];
                 append = 0;
@@ -92,7 +88,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        // --- Internal Commands ---
+        //  Internal Commands
 
         // 'cd' command
         if (strcmp(args[0], "cd") == 0) {
@@ -114,7 +110,7 @@ int main(int argc, char *argv[]) {
             break;
         }
 
-        // 'dir' command (Matches Task 5 logic)
+        // 'dir' command 
         if (strcmp(args[0], "dir") == 0) {
             const char* path = ".";
             if (args[1] != NULL) path = args[1];
@@ -133,7 +129,7 @@ int main(int argc, char *argv[]) {
             continue;
         }
 
-        // 'environ' command (Matches Task 6 logic)
+        // 'environ' command 
         if (strcmp(args[0], "environ") == 0) {
             char **env = environ;
             while (*env) {
@@ -143,7 +139,7 @@ int main(int argc, char *argv[]) {
             continue;
         }
 
-        // 'set' command (Matches Task 6 setenv)
+        // 'set' command 
         if (strcmp(args[0], "set") == 0) {
             if (args[1] != NULL && args[2] != NULL) {
                 setenv(args[1], args[2], 1);
@@ -175,7 +171,7 @@ int main(int argc, char *argv[]) {
             continue;
         }
 
-        // --- External Commands (Task 2 & 4 style) ---
+        //  External Commands 
         
         pid_t pid = fork();
 
@@ -203,7 +199,7 @@ int main(int argc, char *argv[]) {
                 close(fd1);
             }
 
-            // Execute (Task 4 style)
+            // Execute 
             execvp(args[0], args);
             
             // If we get here, it failed
@@ -213,7 +209,7 @@ int main(int argc, char *argv[]) {
         else {
             // Parent Process
             if (background == 0) {
-                wait(NULL); // Task 2/4 style wait
+                wait(NULL); 
             }
         }
     }
