@@ -16,7 +16,7 @@ int main() {
    
     cout << "Enter the directory path: ";
     getline(cin, path);
-    cout << "Enter the bin width (e.g., 1024): ";
+    cout << "Enter the bin width: ";
     cin >> bin_width;
 
     
